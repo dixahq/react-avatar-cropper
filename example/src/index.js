@@ -2,33 +2,44 @@ import React from "react";
 import ReactDom from "react-dom";
 import AvatarCropper from "../../lib";
 
-var App = React.createClass({
-  getInitialState: function() {
-    return {
+class App extends React.Component {
+  
+  constructor (props) {
+    super(props);
+
+    this.handleFileChange = this.handleFileChange.bind(this);
+    this.handleCrop = this.handleCrop.bind(this);
+    this.handleRequestHide = this.handleRequestHide.bind(this);
+
+    this.state = {
       cropperOpen: false,
       img: null,
       croppedImg: "http://www.fillmurray.com/400/400"
-    };
-  },
-  handleFileChange: function(dataURI) {
+    }
+  }
+  
+  handleFileChange (dataURI) {
     this.setState({
       img: dataURI,
       croppedImg: this.state.croppedImg,
       cropperOpen: true
     });
-  },
-  handleCrop: function(dataURI) {
+  }
+
+  handleCrop (dataURI) {
     this.setState({
       cropperOpen: false,
       img: null,
       croppedImg: dataURI
     });
-  },
-  handleRequestHide: function() {
+  }
+
+  handleRequestHide () {
     this.setState({
       cropperOpen: false
     });
-  },
+  }
+
   render () {
     return (
       <div>
@@ -53,28 +64,36 @@ var App = React.createClass({
       </div>
     );
   }
-});
+}
 
-var FileUpload = React.createClass({
+class FileUpload extends React.Component {
 
-  handleFile: function(e) {
+  constructor (props) {
+    super(props);
+    this.in = React.createRef();
+    this.handleFile = this.handleFile.bind(this);
+  }
+
+  handleFile(e) {
     var reader = new FileReader();
     var file = e.target.files[0];
 
     if (!file) return;
 
     reader.onload = function(img) {
-      ReactDom.findDOMNode(this.refs.in).value = '';
+      if(this.in && this.in.current) {
+        this.in.current.value = '';
+      }
       this.props.handleFileChange(img.target.result);
     }.bind(this);
     reader.readAsDataURL(file);
-  },
+  }
 
-  render: function() {
+  render() {
     return (
-      <input ref="in" type="file" accept="image/*" onChange={this.handleFile} />
+      <input ref={this.in} type="file" accept="image/*" onChange={this.handleFile} />
     );
   }
-});
+};
 
 ReactDom.render(<App />, document.getElementById("content"));
